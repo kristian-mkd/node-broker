@@ -1,0 +1,4 @@
+CREATE TABLE messages (
+  ID SERIAL PRIMARY KEY,
+  content VARCHAR(300)
+);
