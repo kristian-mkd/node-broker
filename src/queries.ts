@@ -1,3 +1,4 @@
+import express from "express";
 const Pool = require("pg").Pool;
 const pool = new Pool({
   user: "postgres",
@@ -7,8 +8,8 @@ const pool = new Pool({
   port: 5432
 });
 
-const getMessages = (request, response) => {
-  pool.query("SELECT * FROM messages ORDER BY id ASC", (error, results) => {
+const getMessages = (request: express.Request, response: express.Response) => {
+  pool.query("SELECT * FROM messages ORDER BY id ASC", (error: Object, results: any) => {
     if (error) {
       throw error;
     }
@@ -16,14 +17,14 @@ const getMessages = (request, response) => {
   });
 };
 
-const createMessage = (request, response) => {
+const createMessage = (request: express.Request, response: express.Response) => {
   console.log("message added with post in broker");
   const { content } = request.body;
 
   pool.query(
     "INSERT INTO messages (content) VALUES ($1)",
     [content],
-    (error, results) => {
+    (error: Object, results: any) => {
       if (error) {
         throw error;
       }
@@ -32,10 +33,10 @@ const createMessage = (request, response) => {
   );
 };
 
-const deleteMessage = (request, response) => {
+const deleteMessage = (request: express.Request, response: express.Response) => {
   const id = parseInt(request.params.id);
 
-  pool.query("DELETE FROM messages WHERE id = $1", [id], (error, results) => {
+  pool.query("DELETE FROM messages WHERE id = $1", [id], (error: Object, results: any) => {
     if (error) {
       throw error;
     }
@@ -43,12 +44,12 @@ const deleteMessage = (request, response) => {
   });
 };
 
-const consumeMessage = (request, response) => {
+const consumeMessage = (request: express.Request, response: express.Response) => {
   //const id = parseInt(request.params.id);
 
   pool.query(
     "SELECT * FROM messages ORDER BY id DESC limit 1",
-    (error, results) => {
+    (error: Object, results: any) => {
       if (error) {
         throw error;
       }
@@ -60,7 +61,7 @@ const consumeMessage = (request, response) => {
 
   pool.query(
     "DELETE FROM messages WHERE id=(SELECT MAX(id) FROM messages)",
-    (error, results) => {
+    (error: Object, results: Object) => {
       if (error) {
         throw error;
       }

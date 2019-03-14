@@ -1,8 +1,12 @@
 "use strict";
-var request = require("request");
-var express = require("express");
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var request_1 = __importDefault(require("request"));
+var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
-var app = express();
+var app = express_1.default();
 var db = require("./queries");
 var port = 3002;
 app.use(bodyParser.json());
@@ -10,8 +14,8 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 var consumeMessage = function (req, response) {
-    var content = req.body.content;
-    request.get("http://localhost:3000/messages/consume", function (error, resp, body) {
+    //const { content } = req.body;
+    request_1.default.get("http://localhost:3000/messages/consume", function (error, resp, body) {
         if (error) {
             console.error(error);
             return;

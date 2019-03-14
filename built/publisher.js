@@ -1,9 +1,12 @@
 "use strict";
-var request = require("request");
-var express = require("express");
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var request_1 = __importDefault(require("request"));
+var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
-var app = express();
-//const db = require("./queries");
+var app = express_1.default();
 var port = 3001;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
@@ -11,7 +14,7 @@ app.use(bodyParser.urlencoded({
 }));
 var publishMessage = function (req, response) {
     var content = req.body.content;
-    request.post("http://localhost:3000/messages", {
+    request_1.default.post("http://localhost:3000/messages", {
         json: {
             content: content
         }

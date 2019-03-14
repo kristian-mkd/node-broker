@@ -1,8 +1,7 @@
-const request = require("request");
-const express = require("express");
+import request from "request";
+import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
-//const db = require("./queries");
 const port = 3001;
 
 app.use(bodyParser.json());
@@ -12,7 +11,7 @@ app.use(
   })
 );
 
-const publishMessage = (req, response) => {
+const publishMessage = (req: express.Request, response: express.Response) => {
   const { content } = req.body;
 
   request.post(

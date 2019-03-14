@@ -1,5 +1,5 @@
-const request = require("request");
-const express = require("express");
+import request from "request";
+import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
 const db = require("./queries");
@@ -12,8 +12,8 @@ app.use(
   })
 );
 
-const consumeMessage = (req, response) => {
-  const { content } = req.body;
+const consumeMessage = (req: express.Request, response: express.Response) => {
+  //const { content } = req.body;
 
   request.get("http://localhost:3000/messages/consume", (error, resp, body) => {
     if (error) {

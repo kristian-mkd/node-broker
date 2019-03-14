@@ -1,4 +1,4 @@
-const express = require("express");
+import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
 const db = require("./queries");
@@ -11,7 +11,7 @@ app.use(
   })
 );
 
-app.get("/", (request, response) => {
+app.get("/", (request: express.Request, response: express.Response) => {
   response.json({ info: "Node.js, Express, and Postgres API" });
 });
 
