@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var request_1 = __importDefault(require("request"));
 var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
-var app = express_1.default();
 var db = require("./queries");
+var app = express_1.default();
 var port = 3002;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({

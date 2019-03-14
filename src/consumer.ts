@@ -1,8 +1,9 @@
 import request from "request";
 import express from "express";
+
 const bodyParser = require("body-parser");
-const app = express();
 const db = require("./queries");
+const app = express();
 const port = 3002;
 
 app.use(bodyParser.json());

@@ -9,15 +9,21 @@ const pool = new Pool({
 });
 
 const getMessages = (request: express.Request, response: express.Response) => {
-  pool.query("SELECT * FROM messages ORDER BY id ASC", (error: Object, results: any) => {
-    if (error) {
-      throw error;
+  pool.query(
+    "SELECT * FROM messages ORDER BY id ASC",
+    (error: Object, results: any) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).json(results.rows);
     }
-    response.status(200).json(results.rows);
-  });
+  );
 };
 
-const createMessage = (request: express.Request, response: express.Response) => {
+const createMessage = (
+  request: express.Request,
+  response: express.Response
+) => {
   console.log("message added with post in broker");
   const { content } = request.body;
 
@@ -33,19 +39,29 @@ const createMessage = (request: express.Request, response: express.Response) => 
   );
 };
 
-const deleteMessage = (request: express.Request, response: express.Response) => {
+const deleteMessage = (
+  request: express.Request,
+  response: express.Response
+) => {
   const id = parseInt(request.params.id);
 
-  pool.query("DELETE FROM messages WHERE id = $1", [id], (error: Object, results: any) => {
-    if (error) {
-      throw error;
+  pool.query(
+    "DELETE FROM messages WHERE id = $1",
+    [id],
+    (error: Object, results: any) => {
+      if (error) {
+        throw error;
+      }
+      response.status(200).send(`Message deleted with ID: ${id}`);
     }
-    response.status(200).send(`Message deleted with ID: ${id}`);
-  });
+  );
 };
 
-const consumeMessage = (request: express.Request, response: express.Response) => {
-  //const id = parseInt(request.params.id);
+const consumeMessage = (
+  request: express.Request,
+  response: express.Response
+) => {
+  // const id = parseInt(request.params.id);
 
   pool.query(
     "SELECT * FROM messages ORDER BY id DESC limit 1",
@@ -65,8 +81,6 @@ const consumeMessage = (request: express.Request, response: express.Response) =>
       if (error) {
         throw error;
       }
-
-      //console.log(selectResults);
       response.status(200); //.json("deleted message");
     }
   );
@@ -78,30 +92,3 @@ module.exports = {
   deleteMessage,
   consumeMessage
 };
-
-// const getUserById = (request, response) => {
-//   const id = parseInt(request.params.id)
-
-//   pool.query('SELECT * FROM users WHERE id = $1', [id], (error, results) => {
-//     if (error) {
-//       throw error
-//     }
-//     response.status(200).json(results.rows)
-//   })
-// }
-
-// const updateUser = (request, response) => {
-//   const id = parseInt(request.params.id)
-//   const { name, email } = request.body
-
-//   pool.query(
-//     'UPDATE users SET name = $1, email = $2 WHERE id = $3',
-//     [name, email, id],
-//     (error, results) => {
-//       if (error) {
-//         throw error
-//       }
-//       response.status(200).send(`User modified with ID: ${id}`)
-//     }
-//   )
-// }
