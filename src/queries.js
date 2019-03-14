@@ -1,77 +1,82 @@
-const Pool = require('pg').Pool
+const Pool = require("pg").Pool;
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'brokerDb',
-  password: 'pg123',
-  port: 5432,
-})
+  user: "postgres",
+  host: "localhost",
+  database: "brokerDb",
+  password: "pg123",
+  port: 5432
+});
 
 const getMessages = (request, response) => {
-  pool.query('SELECT * FROM messages ORDER BY id ASC', (error, results) => {
+  pool.query("SELECT * FROM messages ORDER BY id ASC", (error, results) => {
     if (error) {
-      throw error
+      throw error;
     }
-    response.status(200).json(results.rows)
+    response.status(200).json(results.rows);
   });
-}
-
+};
 
 const createMessage = (request, response) => {
   console.log("message added with post in broker");
   const { content } = request.body;
 
-  pool.query('INSERT INTO messages (content) VALUES ($1)', [content], (error, results) => {
-    if (error) {
-      throw error
+  pool.query(
+    "INSERT INTO messages (content) VALUES ($1)",
+    [content],
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+      response.status(201).send(`Message added.`);
     }
-    response.status(201).send(`Message added.`)
-  })
-}
+  );
+};
 
 const deleteMessage = (request, response) => {
-  
   const id = parseInt(request.params.id);
 
-  pool.query('DELETE FROM messages WHERE id = $1', [id], (error, results) => {
+  pool.query("DELETE FROM messages WHERE id = $1", [id], (error, results) => {
     if (error) {
-      throw error
+      throw error;
     }
-    response.status(200).send(`Message deleted with ID: ${id}`)
+    response.status(200).send(`Message deleted with ID: ${id}`);
   });
-}
+};
 
 const consumeMessage = (request, response) => {
-  
-    //const id = parseInt(request.params.id);
-    
-    pool.query('SELECT * FROM messages ORDER BY id DESC limit 1', (error, results) => {
-        if (error) {
-          throw error
-        }
-        var selectedRow = JSON.stringify(results.rows[0]);
-        console.log("selected: " + selectedRow);
-        response.status(200).json(results.rows[0]);
-      });
+  //const id = parseInt(request.params.id);
 
-//      delete from marks      order by id desc limit 1
-    pool.query('DELETE FROM messages WHERE id=(SELECT MAX(id) FROM messages)', (error, results) => {
+  pool.query(
+    "SELECT * FROM messages ORDER BY id DESC limit 1",
+    (error, results) => {
       if (error) {
-        throw error
+        throw error;
       }
-      
+      var selectedRow = JSON.stringify(results.rows[0]);
+      console.log("selected: " + selectedRow);
+      response.status(200).json(results.rows[0]);
+    }
+  );
+
+  pool.query(
+    "DELETE FROM messages WHERE id=(SELECT MAX(id) FROM messages)",
+    (error, results) => {
+      if (error) {
+        throw error;
+      }
+
       //console.log(selectResults);
-      response.status(200);//.json("deleted message");
-    });
-}
+      response.status(200); //.json("deleted message");
+    }
+  );
+};
 
 module.exports = {
   getMessages,
   createMessage,
   deleteMessage,
-  consumeMessage,
-}
-
+  consumeMessage
+};
 
 // const getUserById = (request, response) => {
 //   const id = parseInt(request.params.id)

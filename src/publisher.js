@@ -1,38 +1,42 @@
-const request = require('request');
-const express = require('express');
-const bodyParser = require('body-parser');
+const request = require("request");
+const express = require("express");
+const bodyParser = require("body-parser");
 const app = express();
-const db = require('./queries');
+//const db = require("./queries");
 const port = 3001;
 
 app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
-    extended: true,
+    extended: true
   })
 );
 
 const publishMessage = (req, response) => {
   const { content } = req.body;
 
-  request.post('http://localhost:3000/messages', {
-    json: {
-      content: content
+  request.post(
+    "http://localhost:3000/messages",
+    {
+      json: {
+        content: content
+      }
+    },
+    (error, response, body) => {
+      if (error) {
+        console.error(error);
+        return;
+      }
+      console.log(`statusCode: ${response.statusCode}`);
+      console.log(body);
     }
-  }, (error, response, body) => {
-    if (error) {
-      console.error(error);
-      return;
-    }
-    console.log(`statusCode: ${response.statusCode}`);
-    console.log(body);
-  });
-  response.send('Published message ' + content);
-}
+  );
+  response.send("Published message " + content);
+};
 
-app.post('/publish', publishMessage);
-app.get('/', (request, response) => {
-  response.json({ info: 'Publisher app' })
+app.post("/publish", publishMessage);
+app.get("/", (request, response) => {
+  response.json({ info: "Publisher app" });
 });
 
 app.listen(port, () => {
