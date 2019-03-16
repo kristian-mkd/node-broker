@@ -1,11 +1,12 @@
 import express from "express";
 const Pool = require("pg").Pool;
 const pool = new Pool({
-  user: "postgres",
-  host: "localhost",
-  database: "brokerDb",
-  password: "pg123",
-  port: 5432
+  user: "tyyyxkebhtlrnt",
+  host: "ec2-54-247-85-251.eu-west-1.compute.amazonaws.com",
+  database: "de6j95f54v1pv2",
+  password: "79e9c07f10272273418842c14953e0f8c70630ecb654f107a7353becf6b2a191",
+  port: 5432,
+  ssl: true
 });
 
 const getMessages = (request: express.Request, response: express.Response) => {
@@ -84,8 +85,35 @@ const consumeMessage = (
   );
 };
 
+const getAllMessages = () => {
+  let resultMessages: Object = {};
+  pool.query(
+    "SELECT * FROM messages ORDER BY id DESC",
+    (error: Object, results: any) => {
+      if (error) {
+        throw error;
+      }
+      console.log("found " + results.rows);
+      resultMessages = { messages: results.rows };
+    }
+  );
+
+  pool.query(
+    "DELETE FROM messages", //WHERE id=(SELECT MAX(id) FROM messages)
+    (error: Object, results: Object) => {
+      if (error) {
+        throw error;
+      }
+      //response.status(200); //.json("deleted message");
+    }
+  );
+  console.log("here");
+  return resultMessages;
+};
+
 module.exports = {
   getMessages,
+  getAllMessages,
   createMessage,
   deleteMessage,
   consumeMessage
