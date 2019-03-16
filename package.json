@@ -8,7 +8,7 @@
     "broker": "nodemon ./built/broker.js --port=3000",
     "firstPublisher": "nodemon ./built/publisher.js --port=8001",
     "secondPublisher": "nodemon ./built/publisher.js --port=8002",
-    "firstConsumer": "nodemon ./built/consumer.js -- port=7001",
+    "firstConsumer": "nodemon ./built/consumer.js --port=7001",
     "secondConsumer": "nodemon ./built/consumer.js -- port=7002"
   },
   "author": "",
