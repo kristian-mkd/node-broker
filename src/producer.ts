@@ -4,7 +4,7 @@ import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
 const port = require('optimist').argv.port;
-const publisherUrl: string = `http://localhost:${port}/messages`;
+//const producerUrl: string = `http://localhost:${port}/messages`;
 const brokerUrl: string = "http://localhost:3000/messages";
 
 app.use(bodyParser.json());
@@ -29,14 +29,14 @@ const publishMessage = (req: express.Request, response: express.Response) => {
       console.log(body);
     }
   );
-  response.send("Published message " + content);
+  response.send(`Published message with content: ${content}`);
 };
 
 app.post("/publish", publishMessage);
 app.get("/", (request, response) => {
-  response.json({ info: "Publisher app" });
+  response.json({ info: "Producer app" });
 });
 
 app.listen(port, () => {
-  console.log(`Publisher app running on port ${port}.`);
+  console.log(`Producer app running on port ${port}.`);
 });

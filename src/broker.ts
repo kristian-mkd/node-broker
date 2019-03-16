@@ -36,6 +36,7 @@ app.post(
   (request: express.Request, response: express.Response) => {
     const consumerUrl = request.body.url;
     consumers = _.filter(consumers, consumer => consumer.url !== consumerUrl);
+    console.log(consumers);
     response.json({
       info: `Consumer with url: ${consumerUrl} successfully unsubscribed.`
     });

@@ -6,10 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "broker": "nodemon ./built/broker.js --port=3000",
-    "firstPublisher": "nodemon ./built/publisher.js --port=8001",
-    "secondPublisher": "nodemon ./built/publisher.js --port=8002",
+    "firstPublisher": "nodemon ./built/producer.js --port=8001",
+    "secondPublisher": "nodemon ./built/producer.js --port=8002",
     "firstConsumer": "nodemon ./built/consumer.js --port=7001",
-    "secondConsumer": "nodemon ./built/consumer.js -- port=7002"
+    "secondConsumer": "nodemon ./built/consumer.js --port=7002"
   },
   "author": "",
   "license": "ISC",

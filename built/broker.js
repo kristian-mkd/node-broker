@@ -29,6 +29,7 @@ app.post("/messages/subscribe", function (request, response) {
 app.post("/messages/unsubscribe", function (request, response) {
     var consumerUrl = request.body.url;
     consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
+    console.log(consumers);
     response.json({
         info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
     });

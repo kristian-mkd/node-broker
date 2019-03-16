@@ -4,10 +4,17 @@ Message broker application that allows multiple appplication to publish and subs
 
 ## Steps for startup of the apps
 
-To start the broker app, run the following
+To start the broker app, run the following in separate terminals
 
 ```bash
 npm run broker
+npm run firstProducer
+npm run firstConsumer
+```
+
+For development
+```bash
+tsc -w
 ```
 
 ## Used technologies
