@@ -6,36 +6,41 @@ const db = require("./queries");
 const app = express();
 const port = 3000;
 
-var publishers: Array<Object> = [];
+var publishers: Array<Publisher> = [];
+var consumers: Array<Consumer> = [];
 
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-);
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (request: express.Request, response: express.Response) => {
-  response.json({ info: "Node.js, Express, and Postgres API" });
+  response.json({
+    info:
+      "Message broker application written in Node.js, Express, and PostgreSQL."
+  });
 });
 
-app.get(
+app.post(
   "/messages/subscribe",
   (request: express.Request, response: express.Response) => {
-    publishers.push({
-      publisher: "first publisher"
+    const consumer = request.body;
+    consumers.push(consumer);
+    console.log(consumers);
+    response.json({
+      info: `Consumer with url: ${consumer.url} successfully subscribed.`
     });
-    console.log(publishers);
-    response.json({ info: "Publisher added." });
   }
 );
 
-app.delete(
-  "/messages/subscribe",
+app.post(
+  "/messages/unsubscribe",
   (request: express.Request, response: express.Response) => {
-    publishers = _.dropRight(publishers);
-    console.log(publishers);
-    response.json({ info: "Publisher removed." });
+    const consumerUrl = request.body.url;
+    console.log(`before: ${JSON.stringify(consumers)}`);
+    consumers = _.filter(consumers, consumer => consumer.url !== consumerUrl);
+    console.log(`after: ${JSON.stringify(consumers)}`);
+    response.json({
+      info: `Consumer with url: ${consumerUrl} successfully unsubscribed.`
+    });
   }
 );
 

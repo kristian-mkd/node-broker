@@ -4,19 +4,17 @@ import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
 const port = 3001;
+const publisherUrl: string = `http://localhost:${port}/messages`;
+const brokerUrl: string = "http://localhost:3000/messages";
 
 app.use(bodyParser.json());
-app.use(
-  bodyParser.urlencoded({
-    extended: true
-  })
-);
+app.use(bodyParser.urlencoded({ extended: true }));
 
 const publishMessage = (req: express.Request, response: express.Response) => {
   const { content } = req.body;
 
   request.post(
-    "http://localhost:3000/messages",
+    brokerUrl,
     {
       json: {
         content: content

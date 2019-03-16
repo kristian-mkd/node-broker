@@ -8,13 +8,13 @@ var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
 var app = express_1.default();
 var port = 3001;
+var publisherUrl = "http://localhost:" + port + "/messages";
+var brokerUrl = "http://localhost:3000/messages";
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 var publishMessage = function (req, response) {
     var content = req.body.content;
-    request_1.default.post("http://localhost:3000/messages", {
+    request_1.default.post(brokerUrl, {
         json: {
             content: content
         }

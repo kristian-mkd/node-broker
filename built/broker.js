@@ -10,24 +10,30 @@ var db = require("./queries");
 var app = express_1.default();
 var port = 3000;
 var publishers = [];
+var consumers = [];
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", function (request, response) {
-    response.json({ info: "Node.js, Express, and Postgres API" });
-});
-app.get("/messages/subscribe", function (request, response) {
-    publishers.push({
-        publisher: "first publisher"
+    response.json({
+        info: "Message broker application written in Node.js, Express, and PostgreSQL."
     });
-    console.log(publishers);
-    response.json({ info: "Publisher added." });
 });
-app.delete("/messages/subscribe", function (request, response) {
-    publishers = lodash_1.default.dropRight(publishers);
-    console.log(publishers);
-    response.json({ info: "Publisher removed." });
+app.post("/messages/subscribe", function (request, response) {
+    var consumer = request.body;
+    consumers.push(consumer);
+    console.log(consumers);
+    response.json({
+        info: "Consumer with url: " + consumer.url + " successfully subscribed."
+    });
+});
+app.post("/messages/unsubscribe", function (request, response) {
+    var consumerUrl = request.body.url;
+    console.log("before: " + JSON.stringify(consumers));
+    consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
+    console.log("after: " + JSON.stringify(consumers));
+    response.json({
+        info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
+    });
 });
 app.get("/messages", db.getMessages);
 app.post("/messages", db.createMessage);
