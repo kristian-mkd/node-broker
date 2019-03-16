@@ -14,13 +14,6 @@ var consumers: Array<Consumer> = [];
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (request: express.Request, response: express.Response) => {
-  response.json({
-    info:
-      "Message broker application written in Node.js, Express, and PostgreSQL."
-  });
-});
-
 app.post(
   "/messages/subscribe",
   (request: express.Request, response: express.Response) => {
@@ -45,31 +38,16 @@ app.post(
   }
 );
 
-// app.get(
-//   "/messages/consume",
-//   (req: express.Request, resp: express.Response) => {
-
-//     request.post(
-//       `${consumers[0]}/subscribe`,
-//       {
-//         json: {
-//           url: consumerUrl
-//         }
-//       },
-//       (error, response, body) => {
-//         if (error) {
-//           console.error(error);
-//           return;
-//         }
-//         console.log(body);
-//       }
-//     );
-//   }
-// );
-
 app.get("/messages", db.getMessages);
+app.get("/messages/consume", db.consumeMessage);
 app.post("/messages", db.createMessage);
 app.delete("/messages/:id", db.deleteMessage);
-//app.get("/messages/consume", db.consumeMessage);
+
+app.get("/", (request: express.Request, response: express.Response) => {
+  response.json({
+    info:
+      "Message broker application written in Node.js, Express, and PostgreSQL."
+  });
+});
 
 app.listen(port, consoleUtil.printAppInfo("BROKER", port));

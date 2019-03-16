@@ -61,27 +61,25 @@ const consumeMessage = (
   request: express.Request,
   response: express.Response
 ) => {
-  // const id = parseInt(request.params.id);
-
   pool.query(
-    "SELECT * FROM messages ORDER BY id DESC limit 1",
+    "SELECT * FROM messages ORDER BY id DESC",
     (error: Object, results: any) => {
       if (error) {
         throw error;
       }
-      var selectedRow = JSON.stringify(results.rows[0]);
-      console.log("selected: " + selectedRow);
-      response.status(200).json(results.rows[0]);
+      var messages = { messages: results.rows };
+      console.log(messages);
+      response.status(200).json(messages);
     }
   );
 
   pool.query(
-    "DELETE FROM messages WHERE id=(SELECT MAX(id) FROM messages)",
+    "DELETE FROM messages", //WHERE id=(SELECT MAX(id) FROM messages)
     (error: Object, results: Object) => {
       if (error) {
         throw error;
       }
-      response.status(200); //.json("deleted message");
+      //response.status(200); //.json("deleted message");
     }
   );
 };

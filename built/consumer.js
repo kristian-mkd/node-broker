@@ -5,26 +5,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var request_1 = __importDefault(require("request"));
 var express_1 = __importDefault(require("express"));
+var lodash_1 = __importDefault(require("lodash"));
 var app = express_1.default();
 var bodyParser = require("body-parser");
 var consoleUtil = require("./consoleUtil");
 var port = require("optimist").argv.port;
-var brokerUrl = "http://localhost:3000/messages";
-var consumerUrl = "http://localhost:" + port + "/messages";
+var brokerUrl = "http://localhost:3000";
+var consumerUrl = "http://localhost:" + port;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-var consumeMessage = function (req, response) {
-    //const { content } = req.body;
-    request_1.default.get(brokerUrl + "/consume", function (error, resp, body) {
+var consumeMessages = function (req, response) {
+    request_1.default.get(brokerUrl + "/messages/consume", function (error, resp, body) {
         if (error) {
             console.error(error);
             return;
         }
-        console.log("statusCode: " + resp.statusCode);
-        console.log(body);
-        response.status(200).json(body);
+        var readMessages = JSON.parse(body);
+        console.log(readMessages);
+        readMessages.messages = lodash_1.default.map(readMessages.messages, function (message) { return message.content; });
+        response.status(200).json(readMessages);
     });
-    //return response.send("Consumed message:" + response.json);//('Consumed message ' + response.body);
 };
 var subscribe = function (req, response) {
     request_1.default.post(brokerUrl + "/subscribe", {
@@ -56,7 +56,7 @@ var unsubscribe = function (req, response) {
 };
 app.get("/subscribe", subscribe);
 app.delete("/unsubscribe", unsubscribe);
-app.get("/consume", consumeMessage);
+app.get("/consume", consumeMessages);
 app.get("/", function (request, response) {
     response.json({ info: "Consumer app" });
 });

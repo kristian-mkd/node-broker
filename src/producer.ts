@@ -34,6 +34,7 @@ const publishMessage = (req: express.Request, response: express.Response) => {
 };
 
 app.post("/publish", publishMessage);
+
 app.get("/", (request, response) => {
   response.json({ info: "Producer app" });
 });
