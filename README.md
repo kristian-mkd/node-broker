@@ -15,6 +15,9 @@ npm run firstConsumer
 For development
 ```bash
 tsc -w
+docker build -t node-broker .
+docker build -t node-first-consumer -f ./consumer/Dockerfile .
+docker run -it -p 3000:3000 node-broker
 ```
 
 ## Used technologies
@@ -26,4 +29,4 @@ tsc -w
 * written on: VS Code
 * published on: GitHub
 
-Made with ❤️ from Kristian
+Made with ❤️ by Kristian
