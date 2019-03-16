@@ -1,9 +1,10 @@
 import request from "request";
 import express from "express";
 
-const bodyParser = require("body-parser");
 const app = express();
-const port = require('optimist').argv.port;
+const bodyParser = require("body-parser");
+const consoleUtil = require("./consoleUtil");
+const port = require("optimist").argv.port;
 //const producerUrl: string = `http://localhost:${port}/messages`;
 const brokerUrl: string = "http://localhost:3000/messages";
 
@@ -37,6 +38,4 @@ app.get("/", (request, response) => {
   response.json({ info: "Producer app" });
 });
 
-app.listen(port, () => {
-  console.log(`Producer app running on port ${port}.`);
-});
+app.listen(port, consoleUtil.printAppInfo("PRODUCER", port));

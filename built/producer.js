@@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var request_1 = __importDefault(require("request"));
 var express_1 = __importDefault(require("express"));
-var bodyParser = require("body-parser");
 var app = express_1.default();
-var port = require('optimist').argv.port;
+var bodyParser = require("body-parser");
+var consoleUtil = require("./consoleUtil");
+var port = require("optimist").argv.port;
 //const producerUrl: string = `http://localhost:${port}/messages`;
 var brokerUrl = "http://localhost:3000/messages";
 app.use(bodyParser.json());
@@ -32,6 +33,4 @@ app.post("/publish", publishMessage);
 app.get("/", function (request, response) {
     response.json({ info: "Producer app" });
 });
-app.listen(port, function () {
-    console.log("Producer app running on port " + port + ".");
-});
+app.listen(port, consoleUtil.printAppInfo("PRODUCER", port));

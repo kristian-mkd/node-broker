@@ -5,10 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var lodash_1 = __importDefault(require("lodash"));
-var bodyParser = require("body-parser");
-var db = require("./queries");
 var app = express_1.default();
-var port = require('optimist').argv.port;
+var bodyParser = require("body-parser");
+var consoleUtil = require("./consoleUtil");
+var db = require("./queries");
+var port = require("optimist").argv.port;
 var publishers = [];
 var consumers = [];
 app.use(bodyParser.json());
@@ -34,10 +35,28 @@ app.post("/messages/unsubscribe", function (request, response) {
         info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
     });
 });
+// app.get(
+//   "/messages/consume",
+//   (req: express.Request, resp: express.Response) => {
+//     request.post(
+//       `${consumers[0]}/subscribe`,
+//       {
+//         json: {
+//           url: consumerUrl
+//         }
+//       },
+//       (error, response, body) => {
+//         if (error) {
+//           console.error(error);
+//           return;
+//         }
+//         console.log(body);
+//       }
+//     );
+//   }
+// );
 app.get("/messages", db.getMessages);
 app.post("/messages", db.createMessage);
 app.delete("/messages/:id", db.deleteMessage);
-app.get("/messages/consume", db.consumeMessage);
-app.listen(port, function () {
-    console.log("Broker app running on port " + port + ".");
-});
+//app.get("/messages/consume", db.consumeMessage);
+app.listen(port, consoleUtil.printAppInfo("BROKER", port));

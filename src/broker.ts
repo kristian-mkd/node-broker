@@ -1,10 +1,12 @@
 import express from "express";
+import request from "request";
 import _ from "lodash";
 
-const bodyParser = require("body-parser");
-const db = require("./queries");
 const app = express();
-const port = require('optimist').argv.port;
+const bodyParser = require("body-parser");
+const consoleUtil = require("./consoleUtil");
+const db = require("./queries");
+const port = require("optimist").argv.port;
 
 var publishers: Array<Publisher> = [];
 var consumers: Array<Consumer> = [];
@@ -43,11 +45,31 @@ app.post(
   }
 );
 
+// app.get(
+//   "/messages/consume",
+//   (req: express.Request, resp: express.Response) => {
+
+//     request.post(
+//       `${consumers[0]}/subscribe`,
+//       {
+//         json: {
+//           url: consumerUrl
+//         }
+//       },
+//       (error, response, body) => {
+//         if (error) {
+//           console.error(error);
+//           return;
+//         }
+//         console.log(body);
+//       }
+//     );
+//   }
+// );
+
 app.get("/messages", db.getMessages);
 app.post("/messages", db.createMessage);
 app.delete("/messages/:id", db.deleteMessage);
-app.get("/messages/consume", db.consumeMessage);
+//app.get("/messages/consume", db.consumeMessage);
 
-app.listen(port, () => {
-  console.log(`Broker app running on port ${port}.`);
-});
+app.listen(port, consoleUtil.printAppInfo("BROKER", port));

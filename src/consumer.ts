@@ -1,10 +1,11 @@
 import request from "request";
 import express from "express";
 
-const bodyParser = require("body-parser");
 const app = express();
+const bodyParser = require("body-parser");
+const consoleUtil = require("./consoleUtil");
+const port = require("optimist").argv.port;
 
-const port = require('optimist').argv.port;
 const brokerUrl: string = "http://localhost:3000/messages";
 const consumerUrl: string = `http://localhost:${port}/messages`;
 
@@ -73,6 +74,4 @@ app.get("/", (request, response) => {
   response.json({ info: "Consumer app" });
 });
 
-app.listen(port, () => {
-  console.log(`Consumer app running on port ${port}.`);
-});
+app.listen(port, consoleUtil.printAppInfo("CONSUMER", port));
