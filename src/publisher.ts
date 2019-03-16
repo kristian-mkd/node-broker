@@ -3,7 +3,7 @@ import express from "express";
 
 const bodyParser = require("body-parser");
 const app = express();
-const port = 3001;
+const port = require('optimist').argv.port;
 const publisherUrl: string = `http://localhost:${port}/messages`;
 const brokerUrl: string = "http://localhost:3000/messages";
 

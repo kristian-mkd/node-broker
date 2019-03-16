@@ -4,7 +4,7 @@ import _ from "lodash";
 const bodyParser = require("body-parser");
 const db = require("./queries");
 const app = express();
-const port = 3000;
+const port = require('optimist').argv.port;
 
 var publishers: Array<Publisher> = [];
 var consumers: Array<Consumer> = [];
@@ -35,9 +35,7 @@ app.post(
   "/messages/unsubscribe",
   (request: express.Request, response: express.Response) => {
     const consumerUrl = request.body.url;
-    console.log(`before: ${JSON.stringify(consumers)}`);
     consumers = _.filter(consumers, consumer => consumer.url !== consumerUrl);
-    console.log(`after: ${JSON.stringify(consumers)}`);
     response.json({
       info: `Consumer with url: ${consumerUrl} successfully unsubscribed.`
     });

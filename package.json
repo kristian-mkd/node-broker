@@ -5,9 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "broker": "nodemon ./built/broker.js",
-    "publisher": "nodemon ./built/publisher.js",
-    "consumer": "nodemon ./built/consumer.js"
+    "broker": "nodemon ./built/broker.js --port=3000",
+    "firstPublisher": "nodemon ./built/publisher.js --port=8001",
+    "secondPublisher": "nodemon ./built/publisher.js --port=8002",
+    "firstConsumer": "nodemon ./built/consumer.js -- port=7001",
+    "secondConsumer": "nodemon ./built/consumer.js -- port=7002"
   },
   "author": "",
   "license": "ISC",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "eslint": "^5.15.1",
     "jest": "^24.5.0",
-    "nodemon": "^1.18.10"
+    "nodemon": "^1.18.10",
+    "optimist": "^0.6.1"
   }
 }

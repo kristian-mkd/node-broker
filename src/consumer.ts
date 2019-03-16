@@ -4,7 +4,7 @@ import express from "express";
 const bodyParser = require("body-parser");
 const app = express();
 
-const port = 3002;
+const port = require('optimist').argv.port;
 const brokerUrl: string = "http://localhost:3000/messages";
 const consumerUrl: string = `http://localhost:${port}/messages`;
 
@@ -46,8 +46,6 @@ const subscribe = (req: express.Request, response: express.Response) => {
 };
 
 const unsubscribe = (req: express.Request, response: express.Response) => {
-  const { content } = req.body;
-
   request.post(
     `${brokerUrl}/unsubscribe`,
     {
@@ -60,7 +58,6 @@ const unsubscribe = (req: express.Request, response: express.Response) => {
         console.error(error);
         return;
       }
-      console.log(`statusCode: ${response.statusCode}`);
       console.log(body);
     }
   );

@@ -8,7 +8,7 @@ var lodash_1 = __importDefault(require("lodash"));
 var bodyParser = require("body-parser");
 var db = require("./queries");
 var app = express_1.default();
-var port = 3000;
+var port = require('optimist').argv.port;
 var publishers = [];
 var consumers = [];
 app.use(bodyParser.json());
@@ -28,9 +28,7 @@ app.post("/messages/subscribe", function (request, response) {
 });
 app.post("/messages/unsubscribe", function (request, response) {
     var consumerUrl = request.body.url;
-    console.log("before: " + JSON.stringify(consumers));
     consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
-    console.log("after: " + JSON.stringify(consumers));
     response.json({
         info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
     });

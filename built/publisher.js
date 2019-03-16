@@ -7,7 +7,7 @@ var request_1 = __importDefault(require("request"));
 var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
 var app = express_1.default();
-var port = 3001;
+var port = require('optimist').argv.port;
 var publisherUrl = "http://localhost:" + port + "/messages";
 var brokerUrl = "http://localhost:3000/messages";
 app.use(bodyParser.json());

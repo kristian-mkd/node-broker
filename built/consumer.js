@@ -7,7 +7,7 @@ var request_1 = __importDefault(require("request"));
 var express_1 = __importDefault(require("express"));
 var bodyParser = require("body-parser");
 var app = express_1.default();
-var port = 3002;
+var port = require('optimist').argv.port;
 var brokerUrl = "http://localhost:3000/messages";
 var consumerUrl = "http://localhost:" + port + "/messages";
 app.use(bodyParser.json());
@@ -40,7 +40,6 @@ var subscribe = function (req, response) {
     response.send("Consumer with url: " + consumerUrl + " is successfully subscribed");
 };
 var unsubscribe = function (req, response) {
-    var content = req.body.content;
     request_1.default.post(brokerUrl + "/unsubscribe", {
         json: {
             url: consumerUrl
@@ -50,7 +49,6 @@ var unsubscribe = function (req, response) {
             console.error(error);
             return;
         }
-        console.log("statusCode: " + response.statusCode);
         console.log(body);
     });
     response.send("Consumer with url: " + consumerUrl + " is successfully unsubscribed");
