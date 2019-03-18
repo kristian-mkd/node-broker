@@ -26,7 +26,5 @@ docker run -it -p 3000:3000 node-broker
 * typescript
 * postgre
 * docker
-* written on: VS Code
-* published on: GitHub
 
 Made with ❤️ by Kristian
