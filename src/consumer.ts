@@ -4,7 +4,7 @@ import _ from "lodash";
 
 const app = express();
 const bodyParser = require("body-parser");
-const consoleUtil = require("./consoleUtil");
+const consoleUtil = require("./util/consoleUtil");
 const port = require("optimist").argv.port;
 
 const brokerUrl: string = "http://localhost:3000";
@@ -31,7 +31,7 @@ const consumeMessages = (req: express.Request, response: express.Response) => {
 
 const subscribe = (req: express.Request, response: express.Response) => {
   request.post(
-    `${brokerUrl}/subscribe`,
+    `${brokerUrl}/messages/subscribe`,
     {
       json: {
         url: consumerUrl
@@ -50,7 +50,7 @@ const subscribe = (req: express.Request, response: express.Response) => {
 
 const unsubscribe = (req: express.Request, response: express.Response) => {
   request.post(
-    `${brokerUrl}/unsubscribe`,
+    `${brokerUrl}/messages/unsubscribe`,
     {
       json: {
         url: consumerUrl
@@ -69,9 +69,19 @@ const unsubscribe = (req: express.Request, response: express.Response) => {
   );
 };
 
+const receiveMessages = (
+  request: express.Request,
+  response: express.Response
+) => {
+  const receivedMessages = JSON.stringify(request.body);
+  console.log(`Received messages: ${receivedMessages}`);
+  response.json({ info: "Successfully received messages" });
+};
+
 app.get("/subscribe", subscribe);
 app.delete("/unsubscribe", unsubscribe);
 app.get("/consume", consumeMessages);
+app.post("/receive", receiveMessages);
 
 app.get("/", (request, response) => {
   response.json({ info: "Consumer app" });

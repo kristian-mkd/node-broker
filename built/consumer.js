@@ -8,7 +8,7 @@ var express_1 = __importDefault(require("express"));
 var lodash_1 = __importDefault(require("lodash"));
 var app = express_1.default();
 var bodyParser = require("body-parser");
-var consoleUtil = require("./consoleUtil");
+var consoleUtil = require("./util/consoleUtil");
 var port = require("optimist").argv.port;
 var brokerUrl = "http://localhost:3000";
 var consumerUrl = "http://localhost:" + port;
@@ -27,7 +27,7 @@ var consumeMessages = function (req, response) {
     });
 };
 var subscribe = function (req, response) {
-    request_1.default.post(brokerUrl + "/subscribe", {
+    request_1.default.post(brokerUrl + "/messages/subscribe", {
         json: {
             url: consumerUrl
         }
@@ -41,7 +41,7 @@ var subscribe = function (req, response) {
     response.send("Consumer with url: " + consumerUrl + " is successfully subscribed");
 };
 var unsubscribe = function (req, response) {
-    request_1.default.post(brokerUrl + "/unsubscribe", {
+    request_1.default.post(brokerUrl + "/messages/unsubscribe", {
         json: {
             url: consumerUrl
         }
@@ -54,9 +54,15 @@ var unsubscribe = function (req, response) {
     });
     response.send("Consumer with url: " + consumerUrl + " is successfully unsubscribed");
 };
+var receiveMessages = function (request, response) {
+    var receivedMessages = JSON.stringify(request.body);
+    console.log("Received messages: " + receivedMessages);
+    response.json({ info: "Successfully received messages" });
+};
 app.get("/subscribe", subscribe);
 app.delete("/unsubscribe", unsubscribe);
 app.get("/consume", consumeMessages);
+app.post("/receive", receiveMessages);
 app.get("/", function (request, response) {
     response.json({ info: "Consumer app" });
 });

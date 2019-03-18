@@ -3,9 +3,8 @@ import express from "express";
 
 const app = express();
 const bodyParser = require("body-parser");
-const consoleUtil = require("./consoleUtil");
+const consoleUtil = require("./util/consoleUtil");
 const port = require("optimist").argv.port;
-//const producerUrl: string = `http://localhost:${port}/messages`;
 const brokerUrl: string = "http://localhost:3000/messages";
 
 app.use(bodyParser.json());
