@@ -1,14 +1,12 @@
-import request from "request";
+import bodyParser from "body-parser";
 import express from "express";
+import request from "request";
+import { printAppInfo } from "./util/consoleUtil";
+import optimist from "optimist";
 
 const app = express();
-const bodyParser = require("body-parser");
-const consoleUtil = require("./util/consoleUtil");
-const port = require("optimist").argv.port;
+const port = optimist.argv.port;
 const brokerUrl: string = "http://localhost:3000/messages";
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const publishMessage = (req: express.Request, response: express.Response) => {
   const { content } = req.body;
@@ -33,9 +31,10 @@ const publishMessage = (req: express.Request, response: express.Response) => {
 };
 
 app.post("/publish", publishMessage);
-
 app.get("/", (request, response) => {
   response.json({ info: "Producer app" });
 });
 
-app.listen(port, consoleUtil.printAppInfo("PRODUCER", port));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.listen(port, () => printAppInfo("PRODUCER", port));

@@ -1,17 +1,14 @@
-import express from "express";
-import request from "request";
 import _ from "lodash";
+import bodyParser from "body-parser";
+import express from "express";
+import optimist from "optimist";
+import request from "request";
+import { checkDbConnection, Message } from "./data/messageRepository";
+import { printAppInfo } from "./util/consoleUtil";
 
 const app = express();
-const bodyParser = require("body-parser");
-const consoleUtil = require("./util/consoleUtil");
-const messageRepository = require("./data/messageRepository");
-const port = require("optimist").argv.port;
-
+const port = optimist.argv.port;
 var consumers: Array<Consumer> = [];
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const subscribe = (request: express.Request, response: express.Response) => {
   const consumer = request.body;
@@ -31,13 +28,13 @@ const unsubscribe = (request: express.Request, response: express.Response) => {
 };
 
 const publish = (request: express.Request, response: express.Response) => {
-  messageRepository.Message.findAll()
+  Message.findAll()
     .then((messages: any) => {
       messages = _.map(messages, m => m.dataValues.content);
       sendToAllConsumers(messages);
     })
     .then(() => {
-      messageRepository.Message.destroy({
+      Message.destroy({
         where: {},
         truncate: false
       }).then(() => console.log("All messages are removed"));
@@ -69,7 +66,7 @@ const getAllMessages = (
   request: express.Request,
   response: express.Response
 ) => {
-  messageRepository.Message.findAll().then((messages: any) => {
+  Message.findAll().then((messages: any) => {
     messages = _.map(messages, m => m.dataValues.content);
     response.status(200).json(messages);
   });
@@ -82,7 +79,7 @@ const createMessage = (
   const { content } = request.body;
   console.log(`Message: '${content}' added.`);
 
-  messageRepository.Message.create({
+  Message.create({
     content: content
   }).then((message: any) => {
     response.status(200).send(`Message: '${message.content}' added.`);
@@ -93,19 +90,27 @@ const consumeAllMessages = (
   request: express.Request,
   response: express.Response
 ) => {
-  messageRepository.Message.findAll()
+  Message.findAll()
     .then((messages: any) => {
       messages = _.map(messages, m => m.dataValues.content);
       response.status(200).json(messages);
     })
     .then(() => {
-      messageRepository.Message.destroy({
+      Message.destroy({
         where: {},
         truncate: false
       }).then(() => console.log("All messages are removed"));
     });
 };
 
+const indexPage = (request: express.Request, response: express.Response) => {
+  checkDbConnection();
+  response.json({
+    info: "Message broker (Node.js, Express, and PostgreSQL.)"
+  });
+};
+
+app.get("/", indexPage);
 app.get("/messages", getAllMessages);
 app.post("/messages", createMessage);
 app.get("/messages/publish", publish);
@@ -113,11 +118,6 @@ app.get("/messages/consume", consumeAllMessages);
 app.post("/messages/subscribe", subscribe);
 app.post("/messages/unsubscribe", unsubscribe);
 
-app.get("/", (request: express.Request, response: express.Response) => {
-  console.log(messageRepository.checkDbConnection());
-  response.json({
-    info: "Message broker (Node.js, Express, and PostgreSQL.)"
-  });
-});
-
-app.listen(port, consoleUtil.printAppInfo("BROKER", port));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.listen(port, () => printAppInfo("BROKER", port));

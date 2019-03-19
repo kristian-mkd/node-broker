@@ -1,17 +1,14 @@
-import request from "request";
-import express from "express";
 import _ from "lodash";
+import bodyParser from "body-parser";
+import express from "express";
+import optimist from "optimist";
+import request from "request";
+import { printAppInfo } from "./util/consoleUtil";
 
 const app = express();
-const bodyParser = require("body-parser");
-const consoleUtil = require("./util/consoleUtil");
-const port = require("optimist").argv.port;
-
+const port = optimist.argv.port;
 const brokerUrl: string = "http://localhost:3000";
 const consumerUrl: string = `http://localhost:${port}`;
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const consumeMessages = (req: express.Request, response: express.Response) => {
   request.get(`${brokerUrl}/messages/consume`, (error, resp, body) => {
@@ -87,4 +84,6 @@ app.get("/", (request, response) => {
   response.json({ info: "Consumer app" });
 });
 
-app.listen(port, consoleUtil.printAppInfo("CONSUMER", port));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.listen(port, () => printAppInfo("CONSUMER", port));

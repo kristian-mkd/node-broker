@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize("de6j95f54v1pv2", "tyyyxkebhtlrnt", "79e9c07f10272273418842c14953e0f8c70630ecb654f107a7353becf6b2a191", {
     host: "ec2-54-247-85-251.eu-west-1.compute.amazonaws.com",
@@ -8,7 +9,7 @@ var sequelize = new Sequelize("de6j95f54v1pv2", "tyyyxkebhtlrnt", "79e9c07f10272
         ssl: true
     }
 });
-var Message = sequelize.define("message", {
+exports.Message = sequelize.define("message", {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -21,7 +22,7 @@ var Message = sequelize.define("message", {
 }, {
     timestamps: false
 });
-var checkDbConnection = function () {
+exports.checkDbConnection = function () {
     sequelize
         .authenticate()
         .then(function () {
@@ -30,8 +31,4 @@ var checkDbConnection = function () {
         .catch(function (err) {
         console.error("Unable to connect to the database:", err);
     });
-};
-module.exports = {
-    checkDbConnection: checkDbConnection,
-    Message: Message
 };

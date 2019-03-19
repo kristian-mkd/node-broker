@@ -1,6 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var figlet = require("figlet");
-var printAppInfo = function (appName, port) {
+exports.printAppInfo = function (appName, port) {
     figlet(appName, function (err, data) {
         if (err) {
             console.log("Something went wrong...");
@@ -10,7 +11,4 @@ var printAppInfo = function (appName, port) {
         console.log(data);
         console.log("app running on port: " + port + ".");
     });
-};
-module.exports = {
-    printAppInfo: printAppInfo
 };

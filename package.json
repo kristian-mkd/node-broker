@@ -15,8 +15,9 @@
   "license": "ISC",
   "dependencies": {
     "@types/express": "^4.16.1",
-    "@types/request": "^2.48.1",
     "@types/lodash": "^4.14.123",
+    "@types/optimist": "0.0.29",
+    "@types/request": "^2.48.1",
     "express": "^4.16.4",
     "lodash": "^4.17.11",
     "request": "^2.88.0"

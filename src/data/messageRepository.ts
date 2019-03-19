@@ -14,7 +14,7 @@ const sequelize = new Sequelize(
   }
 );
 
-const Message = sequelize.define(
+export const Message = sequelize.define(
   "message",
   {
     id: {
@@ -32,7 +32,7 @@ const Message = sequelize.define(
   }
 );
 
-const checkDbConnection = () => {
+export const checkDbConnection = () => {
   sequelize
     .authenticate()
     .then(() => {
@@ -41,9 +41,4 @@ const checkDbConnection = () => {
     .catch((err: any) => {
       console.error("Unable to connect to the database:", err);
     });
-};
-
-module.exports = {
-  checkDbConnection,
-  Message
 };
