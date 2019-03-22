@@ -24,6 +24,9 @@ Supported actions:
 - producer can:
     - publish messages to the broker
 
+![Use case](img/useCase.png)
+![Postman screenshot](img/postmanScreenshot.png)
+
 ## Steps for startup of the apps
 
 To start the broker app, run the following in separate terminals
