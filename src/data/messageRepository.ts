@@ -32,6 +32,13 @@ export const Message = sequelize.define(
   }
 );
 
+export const deleteMessages = () => {
+  Message.destroy({
+    where: {},
+    truncate: false
+  }).then(() => console.log("All messages are deleted."));
+};
+
 export const checkDbConnection = () => {
   sequelize
     .authenticate()

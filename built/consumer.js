@@ -8,13 +8,15 @@ var body_parser_1 = __importDefault(require("body-parser"));
 var express_1 = __importDefault(require("express"));
 var optimist_1 = __importDefault(require("optimist"));
 var request_1 = __importDefault(require("request"));
+var constants_1 = require("./util/constants");
 var consoleUtil_1 = require("./util/consoleUtil");
 var app = express_1.default();
+app.use(body_parser_1.default.json());
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 var port = optimist_1.default.argv.port;
-var brokerUrl = "http://localhost:3000";
 var consumerUrl = "http://localhost:" + port;
 var consumeMessages = function (req, response) {
-    request_1.default.get(brokerUrl + "/messages/consume", function (error, resp, body) {
+    request_1.default.get(constants_1.brokerUrl + "/messages/consume", function (error, resp, body) {
         if (error) {
             console.error(error);
             return;
@@ -26,11 +28,8 @@ var consumeMessages = function (req, response) {
     });
 };
 var subscribe = function (req, response) {
-    request_1.default.post(brokerUrl + "/messages/subscribe", {
-        json: {
-            url: consumerUrl
-        }
-    }, function (error, response, body) {
+    var payload = { json: { url: consumerUrl } };
+    request_1.default.post(constants_1.brokerUrl + "/messages/subscribe", payload, function (error, response, body) {
         if (error) {
             console.error(error);
             return;
@@ -40,7 +39,7 @@ var subscribe = function (req, response) {
     response.send("Consumer with url: " + consumerUrl + " is successfully subscribed");
 };
 var unsubscribe = function (req, response) {
-    request_1.default.post(brokerUrl + "/messages/unsubscribe", {
+    request_1.default.post(constants_1.brokerUrl + "/messages/unsubscribe", {
         json: {
             url: consumerUrl
         }
@@ -65,6 +64,4 @@ app.post("/receive", receiveMessages);
 app.get("/", function (request, response) {
     response.json({ info: "Consumer app" });
 });
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.listen(port, function () { return consoleUtil_1.printAppInfo("CONSUMER", port); });

@@ -22,6 +22,12 @@ exports.Message = sequelize.define("message", {
 }, {
     timestamps: false
 });
+exports.deleteMessages = function () {
+    exports.Message.destroy({
+        where: {},
+        truncate: false
+    }).then(function () { return console.log("All messages are deleted."); });
+};
 exports.checkDbConnection = function () {
     sequelize
         .authenticate()

@@ -10,58 +10,21 @@ var optimist_1 = __importDefault(require("optimist"));
 var request_1 = __importDefault(require("request"));
 var messageRepository_1 = require("./data/messageRepository");
 var consoleUtil_1 = require("./util/consoleUtil");
-var app = express_1.default();
+exports.app = express_1.default();
 var port = optimist_1.default.argv.port;
 var consumers = [];
-var subscribe = function (request, response) {
-    var consumer = request.body;
-    consumers.push(consumer);
-    response.json({
-        info: "Consumer with url: " + consumer.url + " successfully subscribed."
+exports.app.use(body_parser_1.default.json());
+exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
+var getMessages = function (request, response) {
+    messageRepository_1.Message.findAll().then(function (messageModels) {
+        response.status(200).json(extractMessages(messageModels));
     });
 };
-var unsubscribe = function (request, response) {
-    var consumerUrl = request.body.url;
-    consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
-    console.log(consumers);
-    response.json({
-        info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
-    });
+var extractMessageContents = function (messageModels) {
+    return lodash_1.default.map(messageModels, function (model) { return model.dataValues.content; });
 };
-var publish = function (request, response) {
-    messageRepository_1.Message.findAll()
-        .then(function (messages) {
-        messages = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
-        sendToAllConsumers(messages);
-    })
-        .then(function () {
-        messageRepository_1.Message.destroy({
-            where: {},
-            truncate: false
-        }).then(function () { return console.log("All messages are removed"); });
-    });
-    response.send("All messages sent to all consumers");
-};
-var sendToAllConsumers = function (messages) {
-    for (var _i = 0, consumers_1 = consumers; _i < consumers_1.length; _i++) {
-        var consumer = consumers_1[_i];
-        request_1.default.post(consumer.url + "/receive", {
-            json: {
-                resultMessages: messages
-            }
-        }, function (error, response, body) {
-            if (error) {
-                console.error(error);
-                return;
-            }
-        });
-    }
-};
-var getAllMessages = function (request, response) {
-    messageRepository_1.Message.findAll().then(function (messages) {
-        messages = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
-        response.status(200).json(messages);
-    });
+var extractMessages = function (messageModels) {
+    return lodash_1.default.map(messageModels, function (model) { return model.dataValues; });
 };
 var createMessage = function (request, response) {
     var content = request.body.content;
@@ -72,32 +35,63 @@ var createMessage = function (request, response) {
         response.status(200).send("Message: '" + message.content + "' added.");
     });
 };
-var consumeAllMessages = function (request, response) {
+var consumeMessages = function (request, response) {
+    messageRepository_1.Message.findAll()
+        .then(function (messageModels) {
+        response.status(200).json(extractMessageContents(messageModels));
+    })
+        .then(messageRepository_1.deleteMessages);
+};
+var sendMessages = function (request, response) {
     messageRepository_1.Message.findAll()
         .then(function (messages) {
         messages = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
-        response.status(200).json(messages);
+        sendToConsumers(messages);
     })
-        .then(function () {
-        messageRepository_1.Message.destroy({
-            where: {},
-            truncate: false
-        }).then(function () { return console.log("All messages are removed"); });
+        .then(messageRepository_1.deleteMessages);
+    response.send("All messages sent to all consumers");
+};
+var sendToConsumers = function (messages) {
+    for (var _i = 0, consumers_1 = consumers; _i < consumers_1.length; _i++) {
+        var consumer = consumers_1[_i];
+        var payload = {
+            json: { resultMessages: messages }
+        };
+        request_1.default.post(consumer.url + "/receive", payload, function (error, response, body) {
+            if (error) {
+                console.error(error);
+                return;
+            }
+        });
+    }
+};
+var subscribe = function (request, response) {
+    var consumer = request.body;
+    consumers.push(consumer);
+    var message = "Consumer with url: " + consumer.url + " successfully subscribed.";
+    console.log(message);
+    response.json(message);
+};
+var unsubscribe = function (request, response) {
+    var consumerUrl = request.body.url;
+    consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
+    console.log(consumers);
+    response.json({
+        info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
     });
 };
-var indexPage = function (request, response) {
+var index = function (request, response) {
     messageRepository_1.checkDbConnection();
     response.json({
         info: "Message broker (Node.js, Express, and PostgreSQL.)"
     });
 };
-app.get("/", indexPage);
-app.get("/messages", getAllMessages);
-app.post("/messages", createMessage);
-app.get("/messages/publish", publish);
-app.get("/messages/consume", consumeAllMessages);
-app.post("/messages/subscribe", subscribe);
-app.post("/messages/unsubscribe", unsubscribe);
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.listen(port, function () { return consoleUtil_1.printAppInfo("BROKER", port); });
+exports.baseUrl = "/messages";
+exports.app.get("/", index);
+exports.app.get(exports.baseUrl, getMessages);
+exports.app.post(exports.baseUrl, createMessage);
+exports.app.get(exports.baseUrl + "/send", sendMessages);
+exports.app.get(exports.baseUrl + "/consume", consumeMessages);
+exports.app.post(exports.baseUrl + "/subscribe", subscribe);
+exports.app.post(exports.baseUrl + "/unsubscribe", unsubscribe);
+exports.app.listen(port, function () { return consoleUtil_1.printAppInfo("BROKER", port); });

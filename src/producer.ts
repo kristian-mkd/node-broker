@@ -1,40 +1,32 @@
 import bodyParser from "body-parser";
 import express from "express";
-import request from "request";
-import { printAppInfo } from "./util/consoleUtil";
 import optimist from "optimist";
+import request from "request";
+import { brokerUrl } from "./util/constants";
+import { printAppInfo } from "./util/consoleUtil";
 
 const app = express();
 const port = optimist.argv.port;
-const brokerUrl: string = "http://localhost:3000/messages";
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-const publishMessage = (req: express.Request, response: express.Response) => {
+const sendMessage = (req: express.Request, response: express.Response) => {
   const { content } = req.body;
-
-  request.post(
-    brokerUrl,
-    {
-      json: {
-        content: content
-      }
-    },
-    (error, response, body) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      console.log(`statusCode: ${response.statusCode}`);
-      console.log(body);
+  let payload = { json: { content: content } };
+  request.post(`${brokerUrl}/messages`, payload, (error, response, body) => {
+    if (error) {
+      console.error(error);
+      return;
     }
-  );
-  response.send(`Published message with content: ${content}`);
+    console.log(`Response statusCode: ${response.statusCode}`);
+    console.log(`Response body: ${body}`);
+  });
+  response.send(`Message was sent with content: "${content}"`);
 };
 
-app.post("/publish", publishMessage);
+app.post("/send", sendMessage);
 app.get("/", (request, response) => {
   response.json({ info: "Producer app" });
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(port, () => printAppInfo("PRODUCER", port));

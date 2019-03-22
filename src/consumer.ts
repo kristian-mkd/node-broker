@@ -3,11 +3,14 @@ import bodyParser from "body-parser";
 import express from "express";
 import optimist from "optimist";
 import request from "request";
+import { brokerUrl } from "./util/constants";
 import { printAppInfo } from "./util/consoleUtil";
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
 const port = optimist.argv.port;
-const brokerUrl: string = "http://localhost:3000";
 const consumerUrl: string = `http://localhost:${port}`;
 
 const consumeMessages = (req: express.Request, response: express.Response) => {
@@ -18,30 +21,20 @@ const consumeMessages = (req: express.Request, response: express.Response) => {
     }
     var readMessages = JSON.parse(body);
     console.log(readMessages);
-    readMessages.messages = _.map(
-      readMessages.messages,
-      (message: Message) => message.content
-    );
+    readMessages.messages = _.map(readMessages.messages, (message: Message) => message.content);
     response.status(200).json(readMessages);
   });
 };
 
 const subscribe = (req: express.Request, response: express.Response) => {
-  request.post(
-    `${brokerUrl}/messages/subscribe`,
-    {
-      json: {
-        url: consumerUrl
-      }
-    },
-    (error, response, body) => {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      console.log(body);
+  const payload = { json: { url: consumerUrl } };
+  request.post(`${brokerUrl}/messages/subscribe`, payload, (error, response, body) => {
+    if (error) {
+      console.error(error);
+      return;
     }
-  );
+    console.log(body);
+  });
   response.send(`Consumer with url: ${consumerUrl} is successfully subscribed`);
 };
 
@@ -61,15 +54,10 @@ const unsubscribe = (req: express.Request, response: express.Response) => {
       console.log(body);
     }
   );
-  response.send(
-    `Consumer with url: ${consumerUrl} is successfully unsubscribed`
-  );
+  response.send(`Consumer with url: ${consumerUrl} is successfully unsubscribed`);
 };
 
-const receiveMessages = (
-  request: express.Request,
-  response: express.Response
-) => {
+const receiveMessages = (request: express.Request, response: express.Response) => {
   const receivedMessages = JSON.stringify(request.body);
   console.log(`Received messages: ${receivedMessages}`);
   response.json({ info: "Successfully received messages" });
@@ -84,6 +72,4 @@ app.get("/", (request, response) => {
   response.json({ info: "Consumer app" });
 });
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 app.listen(port, () => printAppInfo("CONSUMER", port));
