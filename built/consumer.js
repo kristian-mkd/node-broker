@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = __importDefault(require("lodash"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var express_1 = __importDefault(require("express"));
 var optimist_1 = __importDefault(require("optimist"));
@@ -22,13 +21,16 @@ var consumeMessages = function (req, response) {
             return;
         }
         var readMessages = JSON.parse(body);
-        console.log(readMessages);
-        readMessages.messages = lodash_1.default.map(readMessages.messages, function (message) { return message.content; });
-        response.status(200).json(readMessages);
+        console.log("Consumed messages: \n" + readMessages.join("\n"));
+        response.status(200).json({ consumedMessages: readMessages });
     });
 };
 var subscribe = function (req, response) {
-    var payload = { json: { url: consumerUrl } };
+    var payload = {
+        json: {
+            consumer: consumerUrl
+        }
+    };
     request_1.default.post(constants_1.brokerUrl + "/messages/subscribe", payload, function (error, response, body) {
         if (error) {
             console.error(error);
@@ -36,32 +38,34 @@ var subscribe = function (req, response) {
         }
         console.log(body);
     });
-    response.send("Consumer with url: " + consumerUrl + " is successfully subscribed");
+    response.send("Consumer with url: " + consumerUrl + " is successfully subscribed.");
 };
 var unsubscribe = function (req, response) {
-    request_1.default.post(constants_1.brokerUrl + "/messages/unsubscribe", {
+    var payload = {
         json: {
-            url: consumerUrl
+            consumer: consumerUrl
         }
-    }, function (error, response, body) {
+    };
+    request_1.default.post(constants_1.brokerUrl + "/messages/unsubscribe", payload, function (error, response, body) {
         if (error) {
             console.error(error);
             return;
         }
         console.log(body);
     });
-    response.send("Consumer with url: " + consumerUrl + " is successfully unsubscribed");
+    response.send("Consumer with url: " + consumerUrl + " is successfully unsubscribed.");
 };
 var receiveMessages = function (request, response) {
-    var receivedMessages = JSON.stringify(request.body);
-    console.log("Received messages: " + receivedMessages);
-    response.json({ info: "Successfully received messages" });
+    var messages = request.body.messages;
+    console.log("Received messages: \n" + messages.join("\n"));
+    response.json({ info: "Successfully received messages." });
 };
-app.get("/subscribe", subscribe);
-app.delete("/unsubscribe", unsubscribe);
+var index = function (request, response) {
+    response.json({ info: "Consumer app" });
+};
+app.get("/", index);
 app.get("/consume", consumeMessages);
 app.post("/receive", receiveMessages);
-app.get("/", function (request, response) {
-    response.json({ info: "Consumer app" });
-});
+app.get("/subscribe", subscribe);
+app.delete("/unsubscribe", unsubscribe);
 app.listen(port, function () { return consoleUtil_1.printAppInfo("CONSUMER", port); });

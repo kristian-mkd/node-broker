@@ -8,33 +8,30 @@ import { printAppInfo } from "./util/consoleUtil";
 
 export const app = express();
 const port = optimist.argv.port;
-var consumers: Array<Consumer> = [];
+var consumers: Array<string> = [];
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const createMessage = (request: express.Request, response: express.Response) => {
+  const { content } = request.body;
+  const info = `Message: '${content}' added.`;
+  console.log(info);
+  Message.create({
+    content: content
+  }).then((message: Message) => {
+    response.status(200).send(info);
+  });
+};
+
 const getMessages = (request: express.Request, response: express.Response) => {
   Message.findAll().then((messageModels: Array<MessageModel>) => {
-    response.status(200).json(extractMessages(messageModels));
+    response.status(200).json(extractMessageContents(messageModels));
   });
 };
 
 const extractMessageContents = (messageModels: Array<MessageModel>): string[] => {
   return _.map(messageModels, (model: MessageModel) => model.dataValues.content);
-};
-
-const extractMessages = (messageModels: Array<MessageModel>): Message[] => {
-  return _.map(messageModels, (model: MessageModel) => model.dataValues);
-};
-
-const createMessage = (request: express.Request, response: express.Response) => {
-  const { content } = request.body;
-  console.log(`Message: '${content}' added.`);
-  Message.create({
-    content: content
-  }).then((message: Message) => {
-    response.status(200).send(`Message: '${message.content}' added.`);
-  });
 };
 
 const consumeMessages = (request: express.Request, response: express.Response) => {
@@ -46,21 +43,29 @@ const consumeMessages = (request: express.Request, response: express.Response) =
 };
 
 const sendMessages = (request: express.Request, response: express.Response) => {
+  if (_.size(consumers) === 0) {
+    const info = "There are no subscribed consumers to receive the messages.";
+    console.log(info);
+    response.send(info);
+    return;
+  }
   Message.findAll()
-    .then((messages: any) => {
-      messages = _.map(messages, m => m.dataValues.content);
-      sendToConsumers(messages);
+    .then((messages: Array<MessageModel>) => {
+      const messageContents = _.map(messages, m => m.dataValues.content);
+      sendToConsumers(messageContents);
     })
     .then(deleteMessages);
-  response.send(`All messages sent to all consumers`);
+  response.send("All messages sent to all consumers.");
 };
 
-const sendToConsumers = (messages: any) => {
+const sendToConsumers = (messages: Array<String>) => {
   for (let consumer of consumers) {
     let payload = {
-      json: { resultMessages: messages }
+      json: {
+        messages: messages
+      }
     };
-    request.post(`${consumer.url}/receive`, payload, (error, response, body) => {
+    request.post(`${consumer}/receive`, payload, (error, response, body) => {
       if (error) {
         console.error(error);
         return;
@@ -70,20 +75,25 @@ const sendToConsumers = (messages: any) => {
 };
 
 const subscribe = (request: express.Request, response: express.Response) => {
-  const consumer = request.body;
-  consumers.push(consumer);
-  const message = `Consumer with url: ${consumer.url} successfully subscribed.`;
-  console.log(message);
-  response.json(message);
+  const consumerToSubscribe = request.body.consumer;
+  if (consumers.indexOf(consumerToSubscribe) === -1) {
+    consumers.push(consumerToSubscribe);
+  } else {
+    return response.json(`Consumer with url: ${consumerToSubscribe} already subscribed.`);
+  }
+  console.log(`Consumers: ${consumers}`);
+  const info = `Consumer with url: ${consumerToSubscribe} successfully subscribed.`;
+  console.log(info);
+  response.json(info);
 };
 
 const unsubscribe = (request: express.Request, response: express.Response) => {
-  const consumerUrl = request.body.url;
-  consumers = _.filter(consumers, consumer => consumer.url !== consumerUrl);
-  console.log(consumers);
-  response.json({
-    info: `Consumer with url: ${consumerUrl} successfully unsubscribed.`
-  });
+  const consumerToUnsubscribe = request.body.consumer;
+  consumers = _.filter(consumers, consumer => consumer !== consumerToUnsubscribe);
+  console.log(`Consumers: ${consumers}`);
+  const info = `Consumer with url: ${consumerToUnsubscribe} successfully unsubscribed.`;
+  console.log(info);
+  response.json(info);
 };
 
 const index = (request: express.Request, response: express.Response) => {
@@ -94,6 +104,7 @@ const index = (request: express.Request, response: express.Response) => {
 };
 
 export const baseUrl = "/messages";
+
 app.get("/", index);
 app.get(baseUrl, getMessages);
 app.post(baseUrl, createMessage);

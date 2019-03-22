@@ -15,25 +15,23 @@ var port = optimist_1.default.argv.port;
 var consumers = [];
 exports.app.use(body_parser_1.default.json());
 exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
+var createMessage = function (request, response) {
+    var content = request.body.content;
+    var info = "Message: '" + content + "' added.";
+    console.log(info);
+    messageRepository_1.Message.create({
+        content: content
+    }).then(function (message) {
+        response.status(200).send(info);
+    });
+};
 var getMessages = function (request, response) {
     messageRepository_1.Message.findAll().then(function (messageModels) {
-        response.status(200).json(extractMessages(messageModels));
+        response.status(200).json(extractMessageContents(messageModels));
     });
 };
 var extractMessageContents = function (messageModels) {
     return lodash_1.default.map(messageModels, function (model) { return model.dataValues.content; });
-};
-var extractMessages = function (messageModels) {
-    return lodash_1.default.map(messageModels, function (model) { return model.dataValues; });
-};
-var createMessage = function (request, response) {
-    var content = request.body.content;
-    console.log("Message: '" + content + "' added.");
-    messageRepository_1.Message.create({
-        content: content
-    }).then(function (message) {
-        response.status(200).send("Message: '" + message.content + "' added.");
-    });
 };
 var consumeMessages = function (request, response) {
     messageRepository_1.Message.findAll()
@@ -43,21 +41,29 @@ var consumeMessages = function (request, response) {
         .then(messageRepository_1.deleteMessages);
 };
 var sendMessages = function (request, response) {
+    if (lodash_1.default.size(consumers) === 0) {
+        var info = "There are no subscribed consumers to receive the messages.";
+        console.log(info);
+        response.send(info);
+        return;
+    }
     messageRepository_1.Message.findAll()
         .then(function (messages) {
-        messages = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
-        sendToConsumers(messages);
+        var messageContents = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
+        sendToConsumers(messageContents);
     })
         .then(messageRepository_1.deleteMessages);
-    response.send("All messages sent to all consumers");
+    response.send("All messages sent to all consumers.");
 };
 var sendToConsumers = function (messages) {
     for (var _i = 0, consumers_1 = consumers; _i < consumers_1.length; _i++) {
         var consumer = consumers_1[_i];
         var payload = {
-            json: { resultMessages: messages }
+            json: {
+                messages: messages
+            }
         };
-        request_1.default.post(consumer.url + "/receive", payload, function (error, response, body) {
+        request_1.default.post(consumer + "/receive", payload, function (error, response, body) {
             if (error) {
                 console.error(error);
                 return;
@@ -66,19 +72,25 @@ var sendToConsumers = function (messages) {
     }
 };
 var subscribe = function (request, response) {
-    var consumer = request.body;
-    consumers.push(consumer);
-    var message = "Consumer with url: " + consumer.url + " successfully subscribed.";
-    console.log(message);
-    response.json(message);
+    var consumerToSubscribe = request.body.consumer;
+    if (consumers.indexOf(consumerToSubscribe) === -1) {
+        consumers.push(consumerToSubscribe);
+    }
+    else {
+        return response.json("Consumer with url: " + consumerToSubscribe + " already subscribed.");
+    }
+    console.log("Consumers: " + consumers);
+    var info = "Consumer with url: " + consumerToSubscribe + " successfully subscribed.";
+    console.log(info);
+    response.json(info);
 };
 var unsubscribe = function (request, response) {
-    var consumerUrl = request.body.url;
-    consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer.url !== consumerUrl; });
-    console.log(consumers);
-    response.json({
-        info: "Consumer with url: " + consumerUrl + " successfully unsubscribed."
-    });
+    var consumerToUnsubscribe = request.body.consumer;
+    consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer !== consumerToUnsubscribe; });
+    console.log("Consumers: " + consumers);
+    var info = "Consumer with url: " + consumerToUnsubscribe + " successfully unsubscribed.";
+    console.log(info);
+    response.json(info);
 };
 var index = function (request, response) {
     messageRepository_1.checkDbConnection();
