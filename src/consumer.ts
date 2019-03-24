@@ -6,11 +6,11 @@ import request from "request";
 import { brokerUrl } from "./util/constants";
 import { printAppInfo } from "./util/consoleUtil";
 
-const app = express();
+export const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const port = optimist.argv.port;
+let port = optimist.argv.port || 7001;
 const consumerUrl: string = `http://localhost:${port}`;
 
 const consumeMessages = (req: express.Request, response: express.Response) => {
@@ -38,7 +38,7 @@ const subscribe = (req: express.Request, response: express.Response) => {
     }
     console.log(body);
   });
-  response.send(`Consumer with url=[${consumerUrl}] is successfully subscribed.`);
+  response.status(200).json(`Consumer with url=[${consumerUrl}] is successfully subscribed.`);
 };
 
 const unsubscribe = (req: express.Request, response: express.Response) => {
@@ -54,7 +54,7 @@ const unsubscribe = (req: express.Request, response: express.Response) => {
     }
     console.log(body);
   });
-  response.send(`Consumer with url=[${consumerUrl}] is successfully unsubscribed.`);
+  response.status(202).json(`Consumer with url=[${consumerUrl}] is successfully unsubscribed.`);
 };
 
 const receiveMessages = (request: express.Request, response: express.Response) => {
@@ -64,7 +64,7 @@ const receiveMessages = (request: express.Request, response: express.Response) =
 };
 
 const index = (request: express.Request, response: express.Response) => {
-  response.json({ info: "Consumer app" });
+  response.json("Consumer app");
 };
 
 app.get("/", index);

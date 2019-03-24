@@ -5,8 +5,8 @@ import request from "request";
 import { brokerUrl } from "./util/constants";
 import { printAppInfo } from "./util/consoleUtil";
 
-const app = express();
-const port = optimist.argv.port;
+export const app = express();
+let port = optimist.argv.port || 8001;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -26,12 +26,12 @@ const sendMessage = (req: express.Request, response: express.Response) => {
     }
     console.log(`${body}`);
   });
-  response.send(`Message sent with content=[${content}], from sender=[${sender}]`);
+  response.status(200).json(`Message sent with content=[${content}], from sender=[${sender}]`);
 };
 
 app.post("/send", sendMessage);
 app.get("/", (request, response) => {
-  response.json({ info: "Producer app" });
+  response.json("Producer app");
 });
 
 app.listen(port, () => printAppInfo("PRODUCER", port));

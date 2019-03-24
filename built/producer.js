@@ -9,10 +9,10 @@ var optimist_1 = __importDefault(require("optimist"));
 var request_1 = __importDefault(require("request"));
 var constants_1 = require("./util/constants");
 var consoleUtil_1 = require("./util/consoleUtil");
-var app = express_1.default();
-var port = optimist_1.default.argv.port;
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: true }));
+exports.app = express_1.default();
+var port = optimist_1.default.argv.port || 8001;
+exports.app.use(body_parser_1.default.json());
+exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
 var sendMessage = function (req, response) {
     var content = req.body.content;
     var sender = "http://localhost:" + port;
@@ -29,10 +29,10 @@ var sendMessage = function (req, response) {
         }
         console.log("" + body);
     });
-    response.send("Message sent with content=[" + content + "], from sender=[" + sender + "]");
+    response.status(200).json("Message sent with content=[" + content + "], from sender=[" + sender + "]");
 };
-app.post("/send", sendMessage);
-app.get("/", function (request, response) {
-    response.json({ info: "Producer app" });
+exports.app.post("/send", sendMessage);
+exports.app.get("/", function (request, response) {
+    response.json("Producer app");
 });
-app.listen(port, function () { return consoleUtil_1.printAppInfo("PRODUCER", port); });
+exports.app.listen(port, function () { return consoleUtil_1.printAppInfo("PRODUCER", port); });

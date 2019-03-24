@@ -7,7 +7,7 @@ import { checkDbConnection, deleteMessages, Message } from "./data/messageReposi
 import { printAppInfo } from "./util/consoleUtil";
 
 export const app = express();
-const port = optimist.argv.port;
+let port = optimist.argv.port || 3000;
 var consumers: Array<string> = [];
 
 app.use(bodyParser.json());
@@ -22,7 +22,7 @@ const createMessage = (request: express.Request, response: express.Response) => 
     sender: sender,
     created_at: new Date()
   }).then((message: Message) => {
-    response.status(200).json(info);
+    response.status(201).json(info);
   });
 };
 
@@ -92,7 +92,7 @@ const subscribe = (request: express.Request, response: express.Response) => {
   console.log(`Consumers: ${consumers}`);
   const info = `Consumer with url=[${consumerToSubscribe}] successfully subscribed.`;
   console.log(info);
-  response.json(info);
+  response.status(201).json(info);
 };
 
 const unsubscribe = (request: express.Request, response: express.Response) => {
@@ -101,7 +101,7 @@ const unsubscribe = (request: express.Request, response: express.Response) => {
   console.log(`Consumers: ${consumers}`);
   const info = `Consumer with url=[${consumerToUnsubscribe}] successfully unsubscribed.`;
   console.log(info);
-  response.json(info);
+  response.status(202).json(info);
 };
 
 const index = (request: express.Request, response: express.Response) => {

@@ -11,7 +11,7 @@ var request_1 = __importDefault(require("request"));
 var messageRepository_1 = require("./data/messageRepository");
 var consoleUtil_1 = require("./util/consoleUtil");
 exports.app = express_1.default();
-var port = optimist_1.default.argv.port;
+var port = optimist_1.default.argv.port || 3000;
 var consumers = [];
 exports.app.use(body_parser_1.default.json());
 exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
@@ -24,7 +24,7 @@ var createMessage = function (request, response) {
         sender: sender,
         created_at: new Date()
     }).then(function (message) {
-        response.status(200).json(info);
+        response.status(201).json(info);
     });
 };
 var getMessages = function (request, response) {
@@ -89,7 +89,7 @@ var subscribe = function (request, response) {
     console.log("Consumers: " + consumers);
     var info = "Consumer with url=[" + consumerToSubscribe + "] successfully subscribed.";
     console.log(info);
-    response.json(info);
+    response.status(201).json(info);
 };
 var unsubscribe = function (request, response) {
     var consumerToUnsubscribe = request.body.consumer;
@@ -97,7 +97,7 @@ var unsubscribe = function (request, response) {
     console.log("Consumers: " + consumers);
     var info = "Consumer with url=[" + consumerToUnsubscribe + "] successfully unsubscribed.";
     console.log(info);
-    response.json(info);
+    response.status(202).json(info);
 };
 var index = function (request, response) {
     messageRepository_1.checkDbConnection();

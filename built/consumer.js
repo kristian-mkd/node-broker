@@ -9,10 +9,10 @@ var optimist_1 = __importDefault(require("optimist"));
 var request_1 = __importDefault(require("request"));
 var constants_1 = require("./util/constants");
 var consoleUtil_1 = require("./util/consoleUtil");
-var app = express_1.default();
-app.use(body_parser_1.default.json());
-app.use(body_parser_1.default.urlencoded({ extended: true }));
-var port = optimist_1.default.argv.port;
+exports.app = express_1.default();
+exports.app.use(body_parser_1.default.json());
+exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
+var port = optimist_1.default.argv.port || 7001;
 var consumerUrl = "http://localhost:" + port;
 var consumeMessages = function (req, response) {
     request_1.default.get(constants_1.brokerUrl + "/messages/consume", function (error, resp, body) {
@@ -38,7 +38,7 @@ var subscribe = function (req, response) {
         }
         console.log(body);
     });
-    response.send("Consumer with url=[" + consumerUrl + "] is successfully subscribed.");
+    response.status(200).json("Consumer with url=[" + consumerUrl + "] is successfully subscribed.");
 };
 var unsubscribe = function (req, response) {
     var payload = {
@@ -53,7 +53,7 @@ var unsubscribe = function (req, response) {
         }
         console.log(body);
     });
-    response.send("Consumer with url=[" + consumerUrl + "] is successfully unsubscribed.");
+    response.status(202).json("Consumer with url=[" + consumerUrl + "] is successfully unsubscribed.");
 };
 var receiveMessages = function (request, response) {
     var messages = request.body.messages;
@@ -61,11 +61,11 @@ var receiveMessages = function (request, response) {
     response.json({ info: "Successfully received messages." });
 };
 var index = function (request, response) {
-    response.json({ info: "Consumer app" });
+    response.json("Consumer app");
 };
-app.get("/", index);
-app.get("/consume", consumeMessages);
-app.post("/receive", receiveMessages);
-app.get("/subscribe", subscribe);
-app.delete("/unsubscribe", unsubscribe);
-app.listen(port, function () { return consoleUtil_1.printAppInfo("CONSUMER", port); });
+exports.app.get("/", index);
+exports.app.get("/consume", consumeMessages);
+exports.app.post("/receive", receiveMessages);
+exports.app.get("/subscribe", subscribe);
+exports.app.delete("/unsubscribe", unsubscribe);
+exports.app.listen(port, function () { return consoleUtil_1.printAppInfo("CONSUMER", port); });

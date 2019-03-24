@@ -28,7 +28,6 @@ describe("hooks", () => {
         .get("/messages")
         .end((error: any, response: any) => {
           const body = response.body;
-          console.log(body);
           expect(body).to.be.an("array");
           expect(body.length).to.be.eql(0);
           done();
@@ -49,9 +48,43 @@ describe("hooks", () => {
         })
         .set("Accept", "application/json")
         .expect("Content-Type", /json/)
-        .expect(200)
+        .expect(201)
         .then((response: any) => {
           expect(response.body).to.eql(`Message saved with Content=[${content}], FROM=[${sender}]`);
+        });
+    });
+  });
+
+  describe("POST /subscribe", () => {
+    it("should respond with info that a consumer has been subscribed successfully", () => {
+      const consumer = "First consumer.";
+      return request(app)
+        .post("/messages/subscribe")
+        .send({
+          consumer: consumer
+        })
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(201)
+        .then((response: any) => {
+          expect(response.body).to.eql(`Consumer with url=[${consumer}] successfully subscribed.`);
+        });
+    });
+  });
+
+  describe("POST /unsubscribe", () => {
+    it("should respond with info that a consumer has been unsubscribed successfully", () => {
+      const consumer = "First consumer.";
+      return request(app)
+        .post("/messages/unsubscribe")
+        .send({
+          consumer: consumer
+        })
+        .set("Accept", "application/json")
+        .expect("Content-Type", /json/)
+        .expect(202)
+        .then((response: any) => {
+          expect(response.body).to.eql(`Consumer with url=[${consumer}] successfully unsubscribed.`);
         });
     });
   });

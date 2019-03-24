@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./built/test/brokerTest.js",
+    "testBroker": "mocha ./built/test/brokerTest.js",
+    "testProducer": "mocha ./built/test/producerTest.js",
+    "testConsumer": "mocha ./built/test/consumerTest.js",
     "broker": "nodemon ./built/broker.js --port=3000",
     "firstProducer": "nodemon ./built/producer.js --port=8001",
     "secondProducer": "nodemon ./built/producer.js --port=8002",
