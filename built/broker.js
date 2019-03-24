@@ -16,27 +16,35 @@ var consumers = [];
 exports.app.use(body_parser_1.default.json());
 exports.app.use(body_parser_1.default.urlencoded({ extended: true }));
 var createMessage = function (request, response) {
-    var content = request.body.content;
-    var info = "Message: '" + content + "' added.";
+    var _a = request.body, content = _a.content, sender = _a.sender;
+    var info = "Message saved with Content=[" + content + "], FROM=[" + sender + "]";
     console.log(info);
     messageRepository_1.Message.create({
-        content: content
+        content: content,
+        sender: sender,
+        created_at: new Date()
     }).then(function (message) {
-        response.status(200).send(info);
+        response.status(200).json(info);
     });
 };
 var getMessages = function (request, response) {
     messageRepository_1.Message.findAll().then(function (messageModels) {
-        response.status(200).json(extractMessageContents(messageModels));
+        response.status(200).json(convertToString(messageModels));
     });
 };
-var extractMessageContents = function (messageModels) {
-    return lodash_1.default.map(messageModels, function (model) { return model.dataValues.content; });
+var convertToString = function (messageModels) {
+    return lodash_1.default.map(messageModels, function (model) { return formatMessage(model.dataValues); });
+};
+var formatMessage = function (message) {
+    // TODO: fix the date time formating
+    // Sun Mar 24 2019 09:57:05 GMT+0100 (Central European Standard Time)
+    var createdAt = message.created_at.toString().substring(0, 24);
+    return "Content=[" + message.content + "], From=[" + message.sender + "], CreatedAt=[" + createdAt + "]";
 };
 var consumeMessages = function (request, response) {
     messageRepository_1.Message.findAll()
         .then(function (messageModels) {
-        response.status(200).json(extractMessageContents(messageModels));
+        response.status(200).json(convertToString(messageModels));
     })
         .then(messageRepository_1.deleteMessages);
 };
@@ -49,8 +57,7 @@ var sendMessages = function (request, response) {
     }
     messageRepository_1.Message.findAll()
         .then(function (messages) {
-        var messageContents = lodash_1.default.map(messages, function (m) { return m.dataValues.content; });
-        sendToConsumers(messageContents);
+        sendToConsumers(convertToString(messages));
     })
         .then(messageRepository_1.deleteMessages);
     response.send("All messages sent to all consumers.");
@@ -77,10 +84,10 @@ var subscribe = function (request, response) {
         consumers.push(consumerToSubscribe);
     }
     else {
-        return response.json("Consumer with url: " + consumerToSubscribe + " already subscribed.");
+        return response.json("Consumer with url=[" + consumerToSubscribe + "] already subscribed.");
     }
     console.log("Consumers: " + consumers);
-    var info = "Consumer with url: " + consumerToSubscribe + " successfully subscribed.";
+    var info = "Consumer with url=[" + consumerToSubscribe + "] successfully subscribed.";
     console.log(info);
     response.json(info);
 };
@@ -88,7 +95,7 @@ var unsubscribe = function (request, response) {
     var consumerToUnsubscribe = request.body.consumer;
     consumers = lodash_1.default.filter(consumers, function (consumer) { return consumer !== consumerToUnsubscribe; });
     console.log("Consumers: " + consumers);
-    var info = "Consumer with url: " + consumerToUnsubscribe + " successfully unsubscribed.";
+    var info = "Consumer with url=[" + consumerToUnsubscribe + "] successfully unsubscribed.";
     console.log(info);
     response.json(info);
 };

@@ -14,30 +14,39 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const createMessage = (request: express.Request, response: express.Response) => {
-  const { content } = request.body;
-  const info = `Message: '${content}' added.`;
+  const { content, sender } = request.body;
+  const info = `Message saved with Content=[${content}], FROM=[${sender}]`;
   console.log(info);
   Message.create({
-    content: content
+    content: content,
+    sender: sender,
+    created_at: new Date()
   }).then((message: Message) => {
-    response.status(200).send(info);
+    response.status(200).json(info);
   });
 };
 
 const getMessages = (request: express.Request, response: express.Response) => {
   Message.findAll().then((messageModels: Array<MessageModel>) => {
-    response.status(200).json(extractMessageContents(messageModels));
+    response.status(200).json(convertToString(messageModels));
   });
 };
 
-const extractMessageContents = (messageModels: Array<MessageModel>): string[] => {
-  return _.map(messageModels, (model: MessageModel) => model.dataValues.content);
+const convertToString = (messageModels: Array<MessageModel>): string[] => {
+  return _.map(messageModels, (model: MessageModel) => formatMessage(model.dataValues));
+};
+
+const formatMessage = (message: Message): string => {
+  // TODO: fix the date time formating
+  // Sun Mar 24 2019 09:57:05 GMT+0100 (Central European Standard Time)
+  const createdAt = message.created_at.toString().substring(0, 24);
+  return `Content=[${message.content}], From=[${message.sender}], CreatedAt=[${createdAt}]`;
 };
 
 const consumeMessages = (request: express.Request, response: express.Response) => {
   Message.findAll()
     .then((messageModels: Array<MessageModel>) => {
-      response.status(200).json(extractMessageContents(messageModels));
+      response.status(200).json(convertToString(messageModels));
     })
     .then(deleteMessages);
 };
@@ -51,8 +60,7 @@ const sendMessages = (request: express.Request, response: express.Response) => {
   }
   Message.findAll()
     .then((messages: Array<MessageModel>) => {
-      const messageContents = _.map(messages, m => m.dataValues.content);
-      sendToConsumers(messageContents);
+      sendToConsumers(convertToString(messages));
     })
     .then(deleteMessages);
   response.send("All messages sent to all consumers.");
@@ -79,10 +87,10 @@ const subscribe = (request: express.Request, response: express.Response) => {
   if (consumers.indexOf(consumerToSubscribe) === -1) {
     consumers.push(consumerToSubscribe);
   } else {
-    return response.json(`Consumer with url: ${consumerToSubscribe} already subscribed.`);
+    return response.json(`Consumer with url=[${consumerToSubscribe}] already subscribed.`);
   }
   console.log(`Consumers: ${consumers}`);
-  const info = `Consumer with url: ${consumerToSubscribe} successfully subscribed.`;
+  const info = `Consumer with url=[${consumerToSubscribe}] successfully subscribed.`;
   console.log(info);
   response.json(info);
 };
@@ -91,7 +99,7 @@ const unsubscribe = (request: express.Request, response: express.Response) => {
   const consumerToUnsubscribe = request.body.consumer;
   consumers = _.filter(consumers, consumer => consumer !== consumerToUnsubscribe);
   console.log(`Consumers: ${consumers}`);
-  const info = `Consumer with url: ${consumerToUnsubscribe} successfully unsubscribed.`;
+  const info = `Consumer with url=[${consumerToUnsubscribe}] successfully unsubscribed.`;
   console.log(info);
   response.json(info);
 };

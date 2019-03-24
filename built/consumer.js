@@ -38,7 +38,7 @@ var subscribe = function (req, response) {
         }
         console.log(body);
     });
-    response.send("Consumer with url: " + consumerUrl + " is successfully subscribed.");
+    response.send("Consumer with url=[" + consumerUrl + "] is successfully subscribed.");
 };
 var unsubscribe = function (req, response) {
     var payload = {
@@ -53,7 +53,7 @@ var unsubscribe = function (req, response) {
         }
         console.log(body);
     });
-    response.send("Consumer with url: " + consumerUrl + " is successfully unsubscribed.");
+    response.send("Consumer with url=[" + consumerUrl + "] is successfully unsubscribed.");
 };
 var receiveMessages = function (request, response) {
     var messages = request.body.messages;

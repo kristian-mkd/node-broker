@@ -15,16 +15,21 @@ app.use(body_parser_1.default.json());
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 var sendMessage = function (req, response) {
     var content = req.body.content;
-    var payload = { json: { content: content } };
+    var sender = "http://localhost:" + port;
+    var payload = {
+        json: {
+            content: content,
+            sender: sender
+        }
+    };
     request_1.default.post(constants_1.brokerUrl + "/messages", payload, function (error, response, body) {
         if (error) {
             console.error(error);
             return;
         }
-        console.log("Response statusCode: " + response.statusCode);
-        console.log("Response body: " + body);
+        console.log("" + body);
     });
-    response.send("Message was sent with content: \"" + content + "\"");
+    response.send("Message sent with content=[" + content + "], from sender=[" + sender + "]");
 };
 app.post("/send", sendMessage);
 app.get("/", function (request, response) {

@@ -38,7 +38,7 @@ const subscribe = (req: express.Request, response: express.Response) => {
     }
     console.log(body);
   });
-  response.send(`Consumer with url: ${consumerUrl} is successfully subscribed.`);
+  response.send(`Consumer with url=[${consumerUrl}] is successfully subscribed.`);
 };
 
 const unsubscribe = (req: express.Request, response: express.Response) => {
@@ -54,7 +54,7 @@ const unsubscribe = (req: express.Request, response: express.Response) => {
     }
     console.log(body);
   });
-  response.send(`Consumer with url: ${consumerUrl} is successfully unsubscribed.`);
+  response.send(`Consumer with url=[${consumerUrl}] is successfully unsubscribed.`);
 };
 
 const receiveMessages = (request: express.Request, response: express.Response) => {

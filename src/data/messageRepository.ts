@@ -25,7 +25,15 @@ export const Message = sequelize.define(
     },
     content: {
       type: Sequelize.STRING
-    }
+    },
+    sender: {
+      type: Sequelize.STRING
+    },
+    created_at: {
+      type: 'TIMESTAMP',
+      //defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      allowNull: false
+    },
   },
   {
     timestamps: false

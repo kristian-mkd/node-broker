@@ -12,16 +12,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const sendMessage = (req: express.Request, response: express.Response) => {
   const { content } = req.body;
-  let payload = { json: { content: content } };
+  const sender = `http://localhost:${port}`;
+  let payload = {
+    json: {
+      content: content,
+      sender: sender
+    }
+  };
   request.post(`${brokerUrl}/messages`, payload, (error, response, body) => {
     if (error) {
       console.error(error);
       return;
     }
-    console.log(`Response statusCode: ${response.statusCode}`);
-    console.log(`Response body: ${body}`);
+    console.log(`${body}`);
   });
-  response.send(`Message was sent with content: "${content}"`);
+  response.send(`Message sent with content=[${content}], from sender=[${sender}]`);
 };
 
 app.post("/send", sendMessage);
