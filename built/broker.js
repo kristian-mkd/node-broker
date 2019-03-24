@@ -101,9 +101,7 @@ var unsubscribe = function (request, response) {
 };
 var index = function (request, response) {
     messageRepository_1.checkDbConnection();
-    response.json({
-        info: "Message broker (Node.js, Express, and PostgreSQL.)"
-    });
+    response.json("Message broker (Node.js, Express, and PostgreSQL.)");
 };
 exports.baseUrl = "/messages";
 exports.app.get("/", index);

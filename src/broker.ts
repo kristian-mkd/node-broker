@@ -106,9 +106,7 @@ const unsubscribe = (request: express.Request, response: express.Response) => {
 
 const index = (request: express.Request, response: express.Response) => {
   checkDbConnection();
-  response.json({
-    info: "Message broker (Node.js, Express, and PostgreSQL.)"
-  });
+  response.json("Message broker (Node.js, Express, and PostgreSQL.)");
 };
 
 export const baseUrl = "/messages";
