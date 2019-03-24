@@ -1,55 +1,63 @@
-# The node.js message broker app (WIP)
+# Message broker app
 
-Message broker application that allows multiple appplication to publish and subscribe messages to the main broker.
-
-![Tech Stack](img/techStack.png)
-
-Two messaging models are supported: queuing and publish-subscribe. 
- - in a queue, a pool of consumers may read from the broker and each record goes to one of them
-    - message
- - in publish-subscribe the messages are broadcasted to all subscribed consumers
- - the consumer
+Message **broker** is a **Node.JS** application that allows multiple **producers** and **consumers** to send and receive messages. Two messaging models are supported: 
+- **queueing**
+    - asynchronous communication, the producer and consumer of the message do not need to interact with the broker at the same time. Messages in the broker are stored until a given consumer retrieves them.
+- **publish-subscribe** 
+    - broker keeps a list of the subscribed consumers, but when a message is received it is not sent immediately to all the consumers. Instead he exposes send operation where all the stored messages are broadcasted to all the subscribed consumers.
 
 Supported actions: 
-- broker can:
+- **Broker:**
     - receive messages from publishers and store them for future consumption
     - add/remove message consumers
     - on a request from given consumer to send him all the messages
-    - on his own to be able to send all the messages all the subscribed consumers
-- consumser can:
-    - subscribe/unsubscribe to the broker
-    - consume messages from the broker (initiated by the consumer)
-    - receive messages from the broker 
-        - when the broker wants to broadcast the messages to all consumsers (initiated by the broker)
-- producer can:
-    - publish messages to the broker
+    - on his own to send the messages to the subscribed consumers
 
+- **Producer:**
+    - send messages to the broker
+
+- **Consumer:**
+    - consume messages from the broker (initiated by the consumer)
+    - subscribe/unsubscribe to the broker
+    - receive messages from the broker (initiated by the broker)
+        - when the broker wants to broadcast the messages to the subscribed consumers
+
+# Tech stack
+![Tech Stack](img/techStack.png)
+
+### Broker with 2 publishers and subscribers
 ![Use case](img/useCase.png)
+
+### Postman ([collection here](postman/broker.postman_collection.json))
 ![Postman screenshot](img/postmanScreenshot.png)
 
-## Steps for startup of the apps
+## Commands
 
-To start the broker app, run the following in separate terminals
+To install the dependencies: ```npm install``` and to build the typescript files: ```tsc -w```
+
+To start the broker and 2 producers and consumers run the following in separate terminals
 
 ```bash
 npm run broker
 npm run firstProducer
+npm run secondProducer
 npm run firstConsumer
+npm run secondConsumer
 ```
-
-For development
+To run the tests: 
 ```bash
-tsc -w
+npm run testBroker
+npm run testProducer
+npm run testConsumer
+```
+Docker:
+```bash
 docker build -t node-broker .
-docker build -t node-first-consumer -f ./consumer/Dockerfile .
 docker run -it -p 3000:3000 node-broker
 ```
-
-## Used technologies
-* node.js
-* express.js
-* typescript
-* postgre
-* docker
-
-Made with ❤️ by Kristian
+- to build the first consumer and producer
+```bash
+docker build -t node-first-consumer -f ./consumer/Dockerfile .
+docker build -t node-first-producer -f ./producer/Dockerfile .
+```
+Made with ❤️ by Kristian Martinoski

@@ -32,7 +32,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"content\": \"Message added by broker.\"\n}"
+					"raw": "{\n  \"content\": \"Message added by broker.\",\n  \"sender\": \"Broker\"\n}"
 				},
 				"description": ""
 			},
@@ -63,10 +63,19 @@
 		{
 			"name": "firstProducerSendMessage",
 			"request": {
-				"url": "",
-				"method": "GET",
-				"header": [],
-				"body": {},
+				"url": "http://localhost:8001/send",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"content\": \"Message from first producer\"\n}"
+				},
 				"description": ""
 			},
 			"response": []
@@ -74,10 +83,19 @@
 		{
 			"name": "secondProducerSendMessage",
 			"request": {
-				"url": "",
-				"method": "GET",
-				"header": [],
-				"body": {},
+				"url": "http://localhost:8002/send",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"content\": \"Message from second producer\"\n}"
+				},
 				"description": ""
 			},
 			"response": []
