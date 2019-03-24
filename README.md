@@ -22,20 +22,25 @@ Supported actions:
     - receive messages from the broker (initiated by the broker)
         - when the broker wants to broadcast the messages to the subscribed consumers
 
+## Broker with 2 publishers and 2 subscribers
+![Use case](img/useCase.png)
+
+## Postman ([collection here](postman/broker.postman_collection.json))
+![Postman screenshot](img/postmanScreenshot.png)
+
 # Tech stack
 ![Tech Stack](img/techStack.png)
 
-### Broker with 2 publishers and 2 subscribers
-![Use case](img/useCase.png)
-
-### Postman ([collection here](postman/broker.postman_collection.json))
-![Postman screenshot](img/postmanScreenshot.png)
+## Database
+- the messages in the broker are persisted in **PostgreSQL** instance hosted on **Heroku**
+- the db contains only one table for messages (id, content, sender, created_at)
+- the data access is through [Sequelize](http://docs.sequelizejs.com/) (Node.js ORM for PostgreSQL)
 
 ## Commands
 
 To install the dependencies: ```npm install``` and to build the typescript files: ```tsc -w```
 
-To start the broker and 2 producers and 2 consumers run the following in separate terminals
+To start broker, 2 producers and 2 consumers in separate terminals run:
 
 ```bash
 npm run broker
@@ -50,12 +55,12 @@ npm run testBroker
 npm run testProducer
 npm run testConsumer
 ```
-Docker:
+### Docker:
 ```bash
 docker build -t node-broker .
 docker run -it -p 3000:3000 node-broker
 ```
-- to build the first consumer and producer
+To build the first consumer and producer:
 ```bash
 docker build -t node-first-consumer -f ./consumer/Dockerfile .
 docker build -t node-first-producer -f ./producer/Dockerfile .
