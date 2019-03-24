@@ -25,7 +25,7 @@ Supported actions:
 # Tech stack
 ![Tech Stack](img/techStack.png)
 
-### Broker with 2 publishers and subscribers
+### Broker with 2 publishers and 2 subscribers
 ![Use case](img/useCase.png)
 
 ### Postman ([collection here](postman/broker.postman_collection.json))
@@ -35,7 +35,7 @@ Supported actions:
 
 To install the dependencies: ```npm install``` and to build the typescript files: ```tsc -w```
 
-To start the broker and 2 producers and consumers run the following in separate terminals
+To start the broker and 2 producers and 2 consumers run the following in separate terminals
 
 ```bash
 npm run broker
